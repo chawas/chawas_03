@@ -1,0 +1,80 @@
+\PassOptionsToPackage{table,xcdraw}{xcolor} % Add required xcolor options before the class
+\documentclass{beamer}
+\usepackage{graphicx}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{array}
+\usepackage{geometry}
+
+% Adjust margins and spacing
+\geometry{left=0.2cm, right=0.2cm, top=0.4cm, bottom=0.4cm}
+
+% Reduce spacing above and below frame titles
+\setbeamertemplate{frametitle}[default][center]
+\setlength{\abovecaptionskip}{-0.3cm} % Reduce space above captions
+\setlength{\belowcaptionskip}{-0.3cm} % Reduce space below captions
+
+\begin{document}
+
+\begin{frame}{4-Station Weather Forecast}
+    \scriptsize % Force font size to be very small for compact tables
+
+    \begin{minipage}[t]{0.48\textwidth} % Adjust width for compact layout
+    \textbf{Beitbridge} \\ % Station name
+    \renewcommand{\arraystretch}{0.7} % Further reduce row height
+    \begin{tabular}{|l|c|c|c|c|c|}
+\hline
+\textbf{Day} & THU & FRI & SAT & SUN & MON \\ \hline
+\textbf{Max Temp (°C)} & 31° & 31° & 32° & 35° & 38° \\ \hline
+\textbf{Symbol} & \includegraphics[width=0.2cm]{decoded_image_1.png} & \includegraphics[width=0.2cm]{decoded_image_2.png} & \includegraphics[width=0.2cm]{decoded_image_3.png} & \includegraphics[width=0.2cm]{decoded_image_4.png} & \includegraphics[width=0.2cm]{decoded_image_5.png} \\ \hline
+\textbf{Min Temp (°C)} & 20° & 19° & 19° & 20° & 21° \\ \hline
+\textbf{Rainfall (mm)} & 0.6 & 1.2 & 0.1 & 0.0 & 0.0 \\ \hline
+    \end{tabular}
+    \end{minipage}
+
+    \hfill % Add horizontal spacing between minipages
+    
+    \begin{minipage}[t]{0.48\textwidth} % Adjust width for compact layout
+    \textbf{Harare} \\ % Station name
+    \renewcommand{\arraystretch}{0.7} % Further reduce row height
+    \begin{tabular}{|l|c|c|c|c|c|}
+\hline
+\textbf{Day} & THU & FRI & SAT & SUN & MON \\ \hline
+\textbf{Max Temp (°C)} & 28° & 24° & 28° & 29° & 31° \\ \hline
+\textbf{Symbol} & \includegraphics[width=0.2cm]{decoded_image_1.png} & \includegraphics[width=0.2cm]{decoded_image_2.png} & \includegraphics[width=0.2cm]{decoded_image_3.png} & \includegraphics[width=0.2cm]{decoded_image_4.png} & \includegraphics[width=0.2cm]{decoded_image_5.png} \\ \hline
+\textbf{Min Temp (°C)} & 18° & 17° & 15° & 16° & 16° \\ \hline
+\textbf{Rainfall (mm)} & 5.4 & 28.8 & 1.5 & 0.1 & 0.0 \\ \hline
+    \end{tabular}
+    \end{minipage}
+
+    \vspace{0.3cm} % End row and add vertical space
+    
+    \begin{minipage}[t]{0.48\textwidth} % Adjust width for compact layout
+    \textbf{Bulawayo} \\ % Station name
+    \renewcommand{\arraystretch}{0.7} % Further reduce row height
+    \begin{tabular}{|l|c|c|c|c|c|}
+\hline
+\textbf{Day} & THU & FRI & SAT & SUN & MON \\ \hline
+\textbf{Max Temp (°C)} & 31° & 21° & 29° & 31° & 34° \\ \hline
+\textbf{Symbol} & \includegraphics[width=0.2cm]{decoded_image_1.png} & \includegraphics[width=0.2cm]{decoded_image_2.png} & \includegraphics[width=0.2cm]{decoded_image_3.png} & \includegraphics[width=0.2cm]{decoded_image_4.png} & \includegraphics[width=0.2cm]{decoded_image_5.png} \\ \hline
+\textbf{Min Temp (°C)} & 19° & 16° & 15° & 16° & 18° \\ \hline
+\textbf{Rainfall (mm)} & 1.1 & 0.4 & 0.1 & 0.0 & 0.0 \\ \hline
+    \end{tabular}
+    \end{minipage}
+
+    \hfill % Add horizontal spacing between minipages
+    
+    \begin{minipage}[t]{0.48\textwidth} % Adjust width for compact layout
+    \textbf{Binga} \\ % Station name
+    \renewcommand{\arraystretch}{0.7} % Further reduce row height
+    \begin{tabular}{|l|c|c|c|c|c|}
+\hline
+\textbf{Day} & THU & FRI & SAT & SUN & MON \\ \hline
+\textbf{Max Temp (°C)} & 35° & 32° & 30° & 32° & 33° \\ \hline
+\textbf{Symbol} & \includegraphics[width=0.2cm]{decoded_image_1.png} & \includegraphics[width=0.2cm]{decoded_image_2.png} & \includegraphics[width=0.2cm]{decoded_image_3.png} & \includegraphics[width=0.2cm]{decoded_image_4.png} & \includegraphics[width=0.2cm]{decoded_image_5.png} \\ \hline
+\textbf{Min Temp (°C)} & 23° & 24° & 23° & 24° & 23° \\ \hline
+\textbf{Rainfall (mm)} & 11.9 & 3.3 & 0.1 & 3.2 & 0.1 \\ \hline
+    \end{tabular}
+    \end{minipage}
+
+\end{frame}
+\end{document}

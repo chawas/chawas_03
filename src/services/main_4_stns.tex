@@ -1,0 +1,23 @@
+\PassOptionsToPackage{table,xcdraw}{xcolor} % Add required xcolor options before the class
+\documentclass{beamer}
+\usepackage{graphicx} % For images
+\usepackage[table,xcdraw]{xcolor} % For colored tables
+\usepackage{array} % For table column alignment
+
+\begin{document}
+
+% Title Slide
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% Include the 4-station forecast frame
+\input{4_stn_forecast.tex}
+\input{weather_forecast_4_stations_compact5.tex}
+
+% Additional slides can go here
+\begin{frame}{Other Content}
+    This is additional content in your presentation.
+\end{frame}
+
+\end{document}
