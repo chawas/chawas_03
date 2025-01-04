@@ -5,15 +5,15 @@ from services.convert_GIF_to_PNG_and_renaming import convert_and_rename_images
 from services.download_satellite_imgs2 import run_satellite_download
 import os
 import sys
-from services.extract_forecast37 import generate_station_forecasts
+from services.extract_forecast61 import generate_station_forecasts
 #from services.download_eps2 import run_eps_download
 
 #from services.download_satellite_imgs import download_satellite_images
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 #sys.path.append('/home/wrf/deployed/webb-downloading/src')
-source_directory = '/home/wrf/deployed/webb-downloading/wx_presentation/images/' + datetime.now().strftime("%Y%m%d")
-target_directory = '/home/wrf/deployed/webb-downloading/wx_presentation/images/'
+source_directory = '/home/wrf/deployed/chawas_03/wx_presentation/images/' + datetime.now().strftime("%Y%m%d")
+target_directory = '/home/wrf/deployed/chawas_03/wx_presentation/images/'
 
 
 def main():

@@ -4,7 +4,7 @@ from datetime import datetime
 import time
 
 # Define the working directory
-tex_directory = "/home/wrf/deployed/webb-downloading/wx_presentation"
+tex_directory = "/home/wrf/deployed/chawas_03/wx_presentation"
 os.chdir(tex_directory)  # Set working directory to LaTeX files
 
 # Suppress Wayland warnings by setting the display environment for X11

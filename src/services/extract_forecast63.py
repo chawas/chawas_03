@@ -1,11 +1,5 @@
+from datetime import datetime, timedelta
 import os
-import base64
-from bs4 import BeautifulSoup
-from datetime import datetime
-from downloader import download_images, copy_directory_contents, verify_images_in_folder
-from config import url_list
-from convert_GIF_to_PNG_and_renaming import convert_and_rename_images
-from download_satellite_imgs2 import run_satellite_download
 
 # Define directories
 symbols_dir = "/home/wrf/nons/python-plotting-toolbox/local_outdata/symbograms/"
@@ -16,7 +10,8 @@ os.makedirs(images_dir, exist_ok=True)
 
 output_path = os.path.join(target_dir, "station_forecast61.tex")
 
-# Define stations
+
+# Define stationsx
 stations = {
     "Bulawayo": os.path.join(symbols_dir, "Bulawayo.html"),
     "Bindura": os.path.join(symbols_dir, "Bindura.html"),
@@ -46,37 +41,19 @@ stations = {
 }
 
 
-# Function to decode and save images
-def decode_and_save_images(image_data_list, station_name):
-    decoded_image_paths = []
-    for idx, image_data in enumerate(image_data_list):
-        image_data = image_data.split(",")[1]
-        decoded_image = base64.b64decode(image_data)
-        image_path = os.path.join(images_dir, f"{station_name}_decoded_image_{idx + 1}.png")
-        with open(image_path, "wb") as img_file:
-            img_file.write(decoded_image)
-        decoded_image_paths.append(image_path)
-    return decoded_image_paths
 
 
-# Function to extract data from an HTML file
-def extract_forecast_data(html_file, station_name):
-    with open(html_file, 'r', encoding='utf-8') as file:
-        soup = BeautifulSoup(file, 'html.parser')
-    days = [th.text.strip() for th in soup.select('tr.days th')]
-    max_temps = [td.text.strip() for td in soup.select('tr.max-temps td')]
-    min_temps = [td.text.strip() for td in soup.select('tr.min-temps td')]
-    precipitation = [td.text.strip() for td in soup.select('tr.precipitation td')]
-    symbol_data = [img['src'] for img in soup.select('tr.symbols img')]
-    decoded_image_paths = decode_and_save_images(symbol_data, station_name)
-    symbols = [f"\\includegraphics[width=0.35cm]{{{path}}}" for path in decoded_image_paths]
-    return days, max_temps, symbols, min_temps, precipitation
+# Function to generate the dynamic frame title
+def generate_forecast_title(start_date):
+    start_date_str = start_date.strftime("%a %d")
+    end_date_str = (start_date + timedelta(days=4)).strftime("%a %d %b")
+    return f"5-DAY FORECAST FOR MAJOR CITIES: {start_date_str} – {end_date_str}"
 
 
-# Function to add station data to LaTeX frames
-def add_station_frame(stations_chunk):
-    latex_frame = r"""
-    \begin{frame}{WEATHER OUTLOOK : SATURDAY 07 DECEMBER 2024}
+# Function to add station data to LaTeX frames with dynamic titles
+def add_station_frame(stations_chunk, current_start_date):
+    latex_frame = rf"""
+    \begin{{frame}}{{{generate_forecast_title(current_start_date)}}}
     \scriptsize
     """
 
@@ -103,34 +80,53 @@ def add_station_frame(stations_chunk):
         \vspace{0.7cm} % Add space between stations
         """
 
-        # Increment station count, and add a new frame after 8 stations
+        # Increment station count, and start a new frame after 8 stations
         station_count += 1
         if station_count == 8:
             latex_frame += r"\end{frame}"
-            latex_frame += r"""
-            \begin{frame}{WEATHER OUTLOOK : SATURDAY 07 DECEMBER 2024}
+            current_start_date += timedelta(days=5)  # Increment the start date for the next title
+            latex_frame += rf"""
+            \begin{{frame}}{{{generate_forecast_title(current_start_date)}}}
             \scriptsize
             """
             station_count = 0  # Reset the station count for the next frame
 
     latex_frame += r"\end{frame}"
-    return latex_frame
+    return latex_frame, current_start_date
+
 
 # Main function to generate LaTeX content
 def generate_station_forecasts():
     station_chunks = [dict(list(stations.items())[i:i + 4]) for i in range(0, len(stations), 4)]
     latex_content = ""
+    current_start_date = datetime.now()  # Initialize the start date
+
     for chunk in station_chunks:
-        latex_content += add_station_frame(chunk)
+        frame_content, current_start_date = add_station_frame(chunk, current_start_date)
+        latex_content += frame_content
 
     with open(output_path, 'w', encoding='utf-8') as file:
         file.write(latex_content)
     print(f"LaTeX content saved to {output_path}")
 
+# Function to extract data from an HTML file
+def extract_forecast_data(html_file, station_name):
+    with open(html_file, 'r', encoding='utf-8') as file:
+        soup = BeautifulSoup(file, 'html.parser')
+    days = [th.text.strip() for th in soup.select('tr.days th')]
+    max_temps = [td.text.strip() for td in soup.select('tr.max-temps td')]
+    min_temps = [td.text.strip() for td in soup.select('tr.min-temps td')]
+    precipitation = [td.text.strip() for td in soup.select('tr.precipitation td')]
+    symbol_data = [img['src'] for img in soup.select('tr.symbols img')]
+    decoded_image_paths = decode_and_save_images(symbol_data, station_name)
+    symbols = [f"\\includegraphics[width=0.35cm]{{{path}}}" for path in decoded_image_paths]
+    return days, max_temps, symbols, min_temps, precipitation
+
+
 
 def main():
     print("Starting Satellite image download...")
-  #  run_satellite_download()
+    # run_satellite_download()
     print("Generating station forecasts...")
     generate_station_forecasts()
 

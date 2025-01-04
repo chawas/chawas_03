@@ -17,7 +17,7 @@ def generate_latex_with_dates(target_dir):
     os.makedirs(target_dir, exist_ok=True)
 
     # Define the output file path
-    output_path = os.path.join(target_dir, "dynamic_weather_forecast25_1.tex")
+    output_path = os.path.join(target_dir, "dynamic_weather_forecast25_5.tex")
 
     # LaTeX template with date variables integrated
     latex_code = f"""
@@ -80,7 +80,7 @@ def generate_latex_with_dates(target_dir):
 \\end{{minipage}}
 \\hfill
 \\begin{{minipage}}[t]{{0.48\\textwidth}}
-    \\vspace{{-0.5cm}}
+    \\vspace{{-6cm}}
     \\raggedright
     \\rule{{0pt}}{{0pt}}
     \\textbf{{Morning:}} Mild and cloudless conditions countrywide are expected. \\\\
@@ -99,13 +99,14 @@ def generate_latex_with_dates(target_dir):
 \\end{{minipage}}
 \\hfill
 \\begin{{minipage}}[t]{{0.48\\textwidth}}
+    \\vspace{{-6cm}}
     \\textbf{{Morning:}} Anticipate brief cloudy periods and cool in Masvingo and Matabeleland South. \\\\
     \\textbf{{Afternoon:}} All areas are expected to remain cloudless, except for Masvingo and Matabeleland South, where partly cloudy conditions may develop. \\\\
     \\textbf{{Evening:}} Mostly clear skies and mild conditions. \\\\
 \\end{{minipage}}
 
 \\newpage
-\\input{{station_forecast60.tex}}
+\\input{{station_forecast61.tex}}
 
 \\end{{document}}
     """
@@ -117,7 +118,7 @@ def generate_latex_with_dates(target_dir):
     print(f"LaTeX file successfully written to: {output_path}")
 
 # Define the target directory
-target_dir = '/home/wrf/deployed/webb-downloading/wx_presentation/'
+target_dir = '/home/wrf/deployed/chawas_03/wx_evening/'
 
 # Generate LaTeX content and write to the file
 generate_latex_with_dates(target_dir)

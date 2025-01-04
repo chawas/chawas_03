@@ -16,7 +16,7 @@ os.makedirs(images_dir, exist_ok=True)
 
 output_path = os.path.join(target_dir, "station_forecast61.tex")
 
-# Define stations
+# Define stationsx
 stations = {
     "Bulawayo": os.path.join(symbols_dir, "Bulawayo.html"),
     "Bindura": os.path.join(symbols_dir, "Bindura.html"),
@@ -108,7 +108,7 @@ def add_station_frame(stations_chunk):
         if station_count == 8:
             latex_frame += r"\end{frame}"
             latex_frame += r"""
-            \begin{frame}{WEATHER OUTLOOK : SATURDAY 07 DECEMBER 2024}
+            \begin{frame}{5-DAY FORECAST FOR MAJOR CITIES:WED 01 – SUN 05 DECEMBER 2024}
             \scriptsize
             """
             station_count = 0  # Reset the station count for the next frame

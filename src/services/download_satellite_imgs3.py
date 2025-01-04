@@ -8,18 +8,68 @@ import time
 import os
 from datetime import datetime, timedelta
 
+from selenium.webdriver.chrome.service import Service
+from selenium.common.exceptions import WebDriverException
+from shutil import which
+
+
+def setup_webdriver(dest_dir, headless=True):
+    """
+    Initialize the Selenium WebDriver with the required settings.
+
+    Args:
+        dest_dir (str): Directory where files will be downloaded.
+        headless (bool): Whether to run the browser in headless mode (default: True).
+
+    Returns:
+        WebDriver: Configured Selenium WebDriver instance.
+
+    Raises:
+        ValueError: If ChromeDriver cannot be located.
+    """
+    try:
+        # Configure Chrome options
+        options = webdriver.ChromeOptions()
+        prefs = {
+            "download.default_directory": dest_dir,  # Set default download directory
+            "profile.default_content_settings.popups": 0,  # Disable download popups
+            "directory_upgrade": True  # Overwrite existing files
+        }
+        options.add_experimental_option("prefs", prefs)
+
+        # Enable headless mode if specified
+        if headless:
+            options.add_argument("--headless")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--disable-gpu")
+            options.add_argument("--window-size=1920x1080")
+
+        # Dynamically locate ChromeDriver
+        chromedriver_path = os.getenv("CHROMEDRIVER_PATH") or which("chromedriver")
+        if not chromedriver_path:
+            raise ValueError("ChromeDriver could not be found. Ensure it is installed and available in the PATH or set the CHROMEDRIVER_PATH environment variable.")
+
+        # Initialize WebDriver
+        service = Service(chromedriver_path)
+        driver = webdriver.Chrome(service=service, options=options)
+        print(f"WebDriver initialized successfully with ChromeDriver at: {chromedriver_path}")
+        return driver
+
+    except WebDriverException as e:
+        print(f"Error initializing WebDriver: {e}")
+        raise
 
 
 
-
-def setup_webdriver(dest_dir):
-#     """
-#     Initialize the Selenium WebDriver with the required settings.
-#     """
-     options = webdriver.ChromeOptions()
-     prefs = {"download.default_directory": dest_dir}
-     options.add_experimental_option("prefs", prefs)
-     return webdriver.Chrome(options=options)
+# def setup_webdriver(dest_dir):
+# #     """
+# #     Initialize the Selenium WebDriver with the required settings.
+# #     """
+#      options = webdriver.ChromeOptions()
+#      prefs = {"download.default_directory": dest_dir}
+#      options.add_experimental_option("prefs", prefs)
+#      return webdriver.Chrome(options=options)
 
 def generate_desired_times():
     """
