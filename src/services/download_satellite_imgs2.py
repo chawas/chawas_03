@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,14 +13,57 @@ from datetime import datetime, timedelta
 
 
 
+# def setup_webdriver(dest_dir):
+# #     """
+# #     Initialize the Selenium WebDriver with the required settings.
+# #     """
+#      options = webdriver.ChromeOptions()
+#      prefs = {"download.default_directory": dest_dir}
+#      options.add_experimental_option("prefs", prefs)
+#      return webdriver.Chrome(options=options)
+
+
+
+# def setup_webdriver(dest_dir):
+#     options = webdriver.ChromeOptions()
+#     options.binary_location = "/usr/bin/"  # Specify the correct Chrome binary path
+#     prefs = {"download.default_directory": dest_dir}
+#     options.add_experimental_option("prefs", prefs)
+#     driver = webdriver.Chrome(options=options)
+#     options.add_argument("--headless=new")  # Use --headless=new for modern headless mode
+#     options.add_argument("--disable-gpu")
+#     options.add_argument("--no-sandbox")
+#     options.add_argument("--disable-dev-shm-usage")
+#
+#     print(f"Using Chrome binary at: {options.binary_location}")
+#     print(f"Using Chromedriver at: {webdriver.Chrome.__file__}")
+#
+#     return driver
+
+
 def setup_webdriver(dest_dir):
-#     """
-#     Initialize the Selenium WebDriver with the required settings.
-#     """
-     options = webdriver.ChromeOptions()
-     prefs = {"download.default_directory": dest_dir}
-     options.add_experimental_option("prefs", prefs)
-     return webdriver.Chrome(options=options)
+    """Sets up the Selenium WebDriver with the correct Chromedriver."""
+    CHROMEDRIVER_PATH = "/usr/local/bin/chromedriver"  # Path to Chromedriver binary
+
+    if not os.path.exists(CHROMEDRIVER_PATH):
+        raise FileNotFoundError(f"Chromedriver not found at {CHROMEDRIVER_PATH}")
+
+    print(f"Initializing WebDriver with Chromedriver located at: {CHROMEDRIVER_PATH}")
+
+    options = webdriver.ChromeOptions()
+    prefs = {"download.default_directory": dest_dir}
+    options.add_experimental_option("prefs", prefs)
+    options.add_argument("--headless")  # Run in headless mode
+    options.add_argument("--no-sandbox")  # Bypass OS security model
+    options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource problems
+
+    # Initialize the Selenium WebDriver
+    service = Service(CHROMEDRIVER_PATH)
+    driver = webdriver.Chrome(service=service, options=options)
+
+    print(f"WebDriver initialized successfully with downloads directed to: {dest_dir}")
+    return driver
+
 
 def generate_desired_times():
     """
