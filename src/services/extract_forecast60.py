@@ -1,11 +1,6 @@
 import os
 import base64
 from bs4 import BeautifulSoup
-from datetime import datetime
-from downloader import download_images, copy_directory_contents, verify_images_in_folder
-from config import url_list
-from convert_GIF_to_PNG_and_renaming import convert_and_rename_images
-from download_satellite_imgs2 import run_satellite_download
 
 # Define directories
 symbols_dir = "/home/wrf/nons/python-plotting-toolbox/local_outdata/symbograms/"

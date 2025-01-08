@@ -133,26 +133,50 @@ CHROMEDRIVER_PATH = "/usr/local/bin/chromedriver"
 MAX_RETRIES = 3
 RETRY_DELAY = 60  # seconds
 
+# def setup_webdriver(dest_dir):
+#     """Sets up the Selenium WebDriver with the correct Chromedriver."""
+#     if not os.path.exists(CHROMEDRIVER_PATH):
+#         logging.error(f"Chromedriver not found at {CHROMEDRIVER_PATH}")
+#         raise FileNotFoundError(f"Chromedriver not found at {CHROMEDRIVER_PATH}")
+#
+#     options = webdriver.ChromeOptions()
+#     prefs = {"download.default_directory": dest_dir}
+#     options.add_experimental_option("prefs", prefs)
+#     options.add_argument("--headless")  # Run in headless mode
+#     options.add_argument("--no-sandbox")
+#     options.add_argument("--disable-dev-shm-usage")
+#
+#     service = Service(CHROMEDRIVER_PATH)
+#     logging.info(f"Initializing WebDriver with Chromedriver located at: {CHROMEDRIVER_PATH}")
+#     driver = webdriver.Chrome(service=service, options=options)
+#     logging.info(f"WebDriver initialized successfully. Download directory: {dest_dir}")
+#     return driver
+
+
 def setup_webdriver(dest_dir):
     """Sets up the Selenium WebDriver with the correct Chromedriver."""
     if not os.path.exists(CHROMEDRIVER_PATH):
         logging.error(f"Chromedriver not found at {CHROMEDRIVER_PATH}")
         raise FileNotFoundError(f"Chromedriver not found at {CHROMEDRIVER_PATH}")
 
-    options = webdriver.ChromeOptions()
-    prefs = {"download.default_directory": dest_dir}
-    options.add_experimental_option("prefs", prefs)
-    options.add_argument("--headless")  # Run in headless mode
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
+    try:
+        options = webdriver.ChromeOptions()
+        prefs = {"download.default_directory": dest_dir}
+        options.add_experimental_option("prefs", prefs)
 
-    service = Service(CHROMEDRIVER_PATH)
-    logging.info(f"Initializing WebDriver with Chromedriver located at: {CHROMEDRIVER_PATH}")
-    driver = webdriver.Chrome(service=service, options=options)
-    logging.info(f"WebDriver initialized successfully. Download directory: {dest_dir}")
-    return driver
+        # Remove the '--headless' argument to make the browser visible
+        # options.add_argument("--headless")  # Comment this line out
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
 
-
+        service = Service(CHROMEDRIVER_PATH)
+        logging.info(f"Initializing WebDriver with Chromedriver located at: {CHROMEDRIVER_PATH}")
+        driver = webdriver.Chrome(service=service, options=options)
+        logging.info(f"WebDriver initialized successfully. Download directory: {dest_dir}")
+        return driver
+    except Exception as e:
+        logging.error(f"Error initializing WebDriver: {e}")
+        raise  # Reraise the exception so the caller can handle it
 
 
 def download_eps_images():
@@ -163,10 +187,19 @@ def download_eps_images():
     base_time_str = base_time.strftime("%Y%m%d%H%M")
     print(f"Base time: {base_time_str}")
 
-    #driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    # Initialize WebDriver
+    img_dir = "/path/to/download/directory"  # Update this with your path
+    driver = None  # Initialize as None to handle cases where setup_webdriver fails
+
     urllist = []
 
     try:
+        # Try to initialize the WebDriver
+        driver = setup_webdriver(img_dir)  # Initialize the WebDriver
+        if driver is None:
+            logging.error("WebDriver initialization failed.")
+            return urllist  # Exit early if WebDriver initialization failed
+
         for station, coords in stations.items():
             latitude = coords["latitude"]
             longitude = coords["longitude"]
@@ -176,6 +209,7 @@ def download_eps_images():
                 f"lat={latitude}&lon={longitude}&station_name={station}"
             )
 
+            logging.info(f"Navigating to URL: {url}")
             driver.get(url)
             sleep(5)
 
@@ -189,14 +223,66 @@ def download_eps_images():
                 print(f"Retrieved URL for {station}: {image_url}")
                 urllist.append((station, image_url))
             except TimeoutException:
-                print(f"Timeout: Could not retrieve image for {station}.")
+                logging.warning(f"Timeout: Could not retrieve image for {station}.")
+
+    except Exception as e:
+        logging.error(f"Error during EPS download: {e}")
 
     finally:
-        driver.quit()
+        # Ensure WebDriver is properly closed only if it was successfully initialized
+        if driver:
+            driver.quit()  # Ensure WebDriver is properly closed
+        else:
+            logging.error("Driver was not initialized, skipping quit.")
 
     # Save URLs to a config file
     save_image_urls(urllist, "../config2.py")
     return urllist
+
+
+
+# def download_eps_images():
+#     """
+#     Download EPS images for the configured stations.
+#     """
+#     base_time = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+#     base_time_str = base_time.strftime("%Y%m%d%H%M")
+#     print(f"Base time: {base_time_str}")
+#
+#     #driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+#     urllist = []
+#
+#     try:
+#         for station, coords in stations.items():
+#             latitude = coords["latitude"]
+#             longitude = coords["longitude"]
+#             url = (
+#                 f"https://charts.ecmwf.int/products/opencharts_meteogram?"
+#                 f"base_time={base_time_str}&epsgram=classical_10d&"
+#                 f"lat={latitude}&lon={longitude}&station_name={station}"
+#             )
+#
+#             driver.get(url)
+#             sleep(5)
+#
+#             try:
+#                 image = WebDriverWait(driver, 50).until(
+#                     EC.visibility_of_element_located(
+#                         (By.XPATH, "//*[@id='root']/div[2]/div/div/div[3]/div/div[2]/div[1]/div/div/div/div[2]/img")
+#                     )
+#                 )
+#                 image_url = image.get_attribute("src")
+#                 print(f"Retrieved URL for {station}: {image_url}")
+#                 urllist.append((station, image_url))
+#             except TimeoutException:
+#                 print(f"Timeout: Could not retrieve image for {station}.")
+#
+#     finally:
+#         driver.quit()
+#
+#     # Save URLs to a config file
+#     save_image_urls(urllist, "config2.py")
+#     return urllist
 
 
 def save_image_urls(urllist, config_file_path):

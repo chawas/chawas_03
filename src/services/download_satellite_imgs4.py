@@ -1,3 +1,7 @@
+import os
+import time
+import logging
+from datetime import datetime, timedelta
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -5,75 +9,56 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 import requests
-import time
-import os
-from datetime import datetime, timedelta
 
 
+# Logging Configuration
+LOG_FILE = "/home/wrf/deployed/chawas_03/wx_presentation/satellite_download.log"
+logging.basicConfig(
+    filename=LOG_FILE,
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+logging.getLogger().addHandler(console_handler)
+
+# Constants
+CHROMEDRIVER_PATH = "/usr/local/bin/chromedriver"
+MAX_RETRIES = 3
+RETRY_DELAY = 60  # seconds
+DEST_DIR = "/home/wrf/deployed/chawas_03/wx_presentation/images"
 
 
-
-# def setup_webdriver(dest_dir):
-# #     """
-# #     Initialize the Selenium WebDriver with the required settings.
-# #     """
-#      options = webdriver.ChromeOptions()
-#      prefs = {"download.default_directory": dest_dir}
-#      options.add_experimental_option("prefs", prefs)
-#      return webdriver.Chrome(options=options)
-
-
-
-# def setup_webdriver(dest_dir):
-#     options = webdriver.ChromeOptions()
-#     options.binary_location = "/usr/bin/"  # Specify the correct Chrome binary path
-#     prefs = {"download.default_directory": dest_dir}
-#     options.add_experimental_option("prefs", prefs)
-#     driver = webdriver.Chrome(options=options)
-#     options.add_argument("--headless=new")  # Use --headless=new for modern headless mode
-#     options.add_argument("--disable-gpu")
-#     options.add_argument("--no-sandbox")
-#     options.add_argument("--disable-dev-shm-usage")
-#
-#     print(f"Using Chrome binary at: {options.binary_location}")
-#     print(f"Using Chromedriver at: {webdriver.Chrome.__file__}")
-#
-#     return driver
+def calculate_time_taken(start_time):
+    elapsed_time = time.time() - start_time
+    return f"Time taken: {elapsed_time:.2f} seconds"
 
 
 def setup_webdriver(dest_dir):
     """Sets up the Selenium WebDriver with the correct Chromedriver."""
-    CHROMEDRIVER_PATH = "/usr/local/bin/chromedriver"  # Path to Chromedriver binary
-
     if not os.path.exists(CHROMEDRIVER_PATH):
+        logging.error(f"Chromedriver not found at {CHROMEDRIVER_PATH}")
         raise FileNotFoundError(f"Chromedriver not found at {CHROMEDRIVER_PATH}")
-
-    print(f"Initializing WebDriver with Chromedriver located at: {CHROMEDRIVER_PATH}")
 
     options = webdriver.ChromeOptions()
     prefs = {"download.default_directory": dest_dir}
     options.add_experimental_option("prefs", prefs)
     options.add_argument("--headless")  # Run in headless mode
-    options.add_argument("--no-sandbox")  # Bypass OS security model
-    options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource problems
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
 
-    # Initialize the Selenium WebDriver
     service = Service(CHROMEDRIVER_PATH)
+    logging.info(f"Initializing WebDriver with Chromedriver located at: {CHROMEDRIVER_PATH}")
     driver = webdriver.Chrome(service=service, options=options)
-
-    print(f"WebDriver initialized successfully with downloads directed to: {dest_dir}")
+    logging.info(f"WebDriver initialized successfully. Download directory: {dest_dir}")
     return driver
 
 
 def generate_desired_times():
-    """
-    Generate the desired_times dictionary with today's and yesterday's dates and times.
-    """
-    # Get today's date and yesterday's date
+    """Generate the desired_times dictionary with today's and yesterday's dates and times."""
     today = datetime.utcnow()
     yesterday = today - timedelta(days=1)
 
-    # Format times as required (e.g., "24/11/24 06:00 UTC")
     today_str = today.strftime("%d/%m/%y")
     yesterday_str = yesterday.strftime("%d/%m/%y")
 
@@ -83,34 +68,30 @@ def generate_desired_times():
         "infra_radiation": f"{today_str} 06:00 UTC",
         "infra_radiation2": f"{yesterday_str} 06:00 UTC",
         "water_vapour": f"{today_str} 00:00 UTC",
-        "water_vapour2": f"{yesterday_str} 00:00 UTC"
+        "water_vapour2": f"{yesterday_str} 00:00 UTC",
     }
-
     return desired_times
 
 
 def download_image(image_name, image_url, dest_dir, rename_to):
-    """
-    Download and rename an image file.
-    """
+    """Download and rename an image file."""
     try:
-        print(f"Downloading {image_name}...")
+        logging.info(f"Downloading {image_name}...")
         response = requests.get(image_url, stream=True)
         if response.status_code == 200:
             file_path = os.path.join(dest_dir, rename_to)
             with open(file_path, "wb") as file:
                 for chunk in response.iter_content(1024):
                     file.write(chunk)
-            print(f"{image_name} successfully downloaded as {file_path}.")
+            logging.info(f"{image_name} successfully downloaded as {file_path}.")
         else:
-            print(f"Failed to download {image_name}. HTTP status code: {response.status_code}")
+            logging.warning(f"Failed to download {image_name}. HTTP status code: {response.status_code}")
     except Exception as e:
-        print(f"Error downloading {image_name}: {e}")
+        logging.error(f"Error downloading {image_name}: {e}")
+
 
 def download_satellite_images(driver, desired_times, dest_dir):
-    """
-    Download all configured satellite images.
-    """
+    """Download all configured satellite images."""
     satellite_pages = [
         {
             "page_url": "https://eumetview.eumetsat.int/static-images/MSGIODC/RGB/NATURALCOLORENHNCD/SOUTHERNAFRICA/index.htm",
@@ -136,11 +117,9 @@ def download_satellite_images(driver, desired_times, dest_dir):
     ]
 
     for page in satellite_pages:
-        print(f"Loading page: {page['page_url']}")
+        logging.info(f"Loading page: {page['page_url']}")
         driver.get(page["page_url"])
-        dropdown = WebDriverWait(driver, 50).until(
-            EC.presence_of_element_located((By.NAME, "selectImage"))
-        )
+        dropdown = WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.NAME, "selectImage")))
         select = Select(dropdown)
 
         for image in page["images"]:
@@ -148,35 +127,46 @@ def download_satellite_images(driver, desired_times, dest_dir):
             rename_to = image["rename_to"]
 
             if time_key not in desired_times:
-                print(f"Time key '{time_key}' not found in desired_times. Skipping.")
+                logging.warning(f"Time key '{time_key}' not found in desired_times. Skipping.")
                 continue
 
             time_value = desired_times[time_key]
             select.select_by_visible_text(time_value)
-            print(f"Selected time: {time_value} for {rename_to}")
-            time.sleep(5)  # Allow the page to update
+            logging.info(f"Selected time: {time_value} for {rename_to}")
+            time.sleep(5)
 
-            image_element = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.NAME, "mainImage"))
-            )
+            image_element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "mainImage")))
             image_url = image_element.get_attribute("src")
             download_image(f"{time_key} Image", image_url, dest_dir, rename_to)
 
+
 def run_satellite_download():
-    """
-    Encapsulates the full satellite image download process.
-    """
-    dest_dir = "/home/wrf/deployed/chawas_03/wx_presentation/images"
-
-    # Dynamically generate the desired_times dictionary
+    """Encapsulates the full satellite image download process with retries."""
+    os.makedirs(DEST_DIR, exist_ok=True)
     desired_times = generate_desired_times()
-    print("Generated desired_times:", desired_times)  # Debug: Print the generated times
+    logging.info(f"Generated desired_times: {desired_times}")
 
-    driver = setup_webdriver(dest_dir)
-    try:
-        download_satellite_images(driver, desired_times, dest_dir)
-    finally:
-        driver.quit()
+    retries = 0
+    while retries < MAX_RETRIES:
+        start_time = time.time()
+        try:
+            driver = setup_webdriver(DEST_DIR)
+            download_satellite_images(driver, desired_times, DEST_DIR)
+            driver.quit()
+            logging.info(f"Download process completed. {calculate_time_taken(start_time)}")
+            return  # Exit on success
+        except Exception as e:
+            retries += 1
+            logging.error(f"Attempt {retries} failed: {e}")
+            if retries < MAX_RETRIES:
+                logging.info(f"Retrying in {RETRY_DELAY} seconds...")
+                time.sleep(RETRY_DELAY)
+            else:
+                logging.error("Max retries reached. Download process failed.")
+                break
+
 
 if __name__ == "__main__":
+    logging.info("Script started.")
     run_satellite_download()
+    logging.info("Script ended.")

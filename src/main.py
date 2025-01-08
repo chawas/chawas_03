@@ -1,14 +1,12 @@
 from datetime import datetime
-from services.downloader import download_images, copy_directory_contents, verify_images_in_folder
-from services.config import url_list
+from services.download_rest import download_images, copy_directory_contents, verify_images_in_folder
+from src.config import url_list
 from services.convert_GIF_to_PNG_and_renaming import convert_and_rename_images
-from services.download_satellite_imgs2 import run_satellite_download
+from services.download_satellite_imgs4 import run_satellite_download
 import os
 import sys
 from services.extract_forecast61 import generate_station_forecasts
-#from services.download_eps2 import run_eps_download
 
-#from services.download_satellite_imgs import download_satellite_images
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 #sys.path.append('/home/wrf/deployed/webb-downloading/src')
@@ -20,7 +18,7 @@ def main():
     print("1. Starting Satellite image download...")
     run_satellite_download()
 
-    from services.download_eps2 import run_eps_download
+    from services.download_eps4 import run_eps_download
     print("2. Starting EPS download...")
     run_eps_download()
 
