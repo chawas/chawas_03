@@ -1,14 +1,23 @@
 from datetime import datetime
-from services.download_rest import download_images, copy_directory_contents, verify_images_in_folder
+from services.download_rest10 import download_images_rest, copy_directory_contents, verify_images_in_folder
 from services.convert_GIF_to_PNG_and_renaming import convert_and_rename_images
-from services.download_satellite_imgs5 import run_satellite_download
+from services.download_satellites20 import run_satellite_download
 from services.extract_forecast61 import generate_station_forecasts
-from services.download_eps4 import run_eps_download
-from config import BASE_DIR, IMAGES_DIR, OUTPUT_DIR
+from services.download_eps import run_eps_download
+from config4 import CHROMEDRIVER_PATH, MAX_RETRIES, DELAY_SECONDS, BASE_DIR, SRC_DIR, IMAGES_DIR
 
 import os
 import sys
 import time
+
+
+# Use CHROMEDRIVER_PATH and other configurations
+print(f"Using Chromedriver at: {CHROMEDRIVER_PATH}")
+print(f"Retries allowed: {MAX_RETRIES}, Delay between retries: {DELAY_SECONDS}s")
+
+
+# Proceed with imports
+from config4 import CHROMEDRIVER_PATH, MAX_RETRIES, DELAY_SECONDS
 
 # Add BASE_DIR to the system path to locate modules
 sys.path.append(BASE_DIR)
@@ -24,23 +33,24 @@ def main():
     run_satellite_download()
 
     print("2. Starting EPS download...")
-    #run_eps_download()
+    run_eps_download()
 
     print("3. Starting image download...")
-    #download_images(url_list=None, source_directory=SOURCE_DIR)  # Assuming url_list is defined in the module
+    download_images_rest(url_list=None, source_directory=SOURCE_DIR)  # Assuming url_list is defined in the module
+    #download_image(image_name, image_url, dest_dir, rename_to)
     print(f"Images downloaded to {SOURCE_DIR}")
 
     print("4. Verifying images...")
-    #verify_images_in_folder(SOURCE_DIR)
+    verify_images_in_folder(SOURCE_DIR)
 
     print("5. Copying images...")
-    #copy_directory_contents(SOURCE_DIR, TARGET_DIR)
+    copy_directory_contents(SOURCE_DIR, TARGET_DIR)
 
     print("6. Converting and renaming images...")
-    #convert_and_rename_images(folder_path=TARGET_DIR)
+    convert_and_rename_images(folder_path=TARGET_DIR)
 
     print("7. Generating station forecasts...")
-    #generate_station_forecasts()
+    generate_station_forecasts()
 
 
 
@@ -52,8 +62,8 @@ if __name__ == "__main__":
     main()
     print("8. Running TeXstudio Makefile...")
     from services.texstudio_makefile11 import run_texstudio_makefile
-    #run_texstudio_makefile()
+    run_texstudio_makefile()
 
     from services.texstudioMakefile21 import open_texstudio_for_editing
     print("9. Opening TeXstudio for editing...")
-    #open_texstudio_for_editing()
+    open_texstudio_for_editing()

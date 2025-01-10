@@ -1,6 +1,6 @@
 from datetime import datetime
-from services.download_rest import download_images, copy_directory_contents, verify_images_in_folder
-from src.config import url_list
+from services.download_rest10 import download_images, copy_directory_contents, verify_images_in_folder
+from src.config_url_list import url_list
 from services.convert_GIF_to_PNG_and_renaming import convert_and_rename_images
 from services.download_satellite_imgs4 import run_satellite_download
 import os
@@ -18,7 +18,7 @@ def main():
     print("1. Starting Satellite image download...")
     run_satellite_download()
 
-    from services.download_eps4 import run_eps_download
+    from services.download_eps import run_eps_download
     print("2. Starting EPS download...")
     run_eps_download()
 

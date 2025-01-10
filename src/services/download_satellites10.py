@@ -1,4 +1,4 @@
-import os
+import os, sys
 import time
 import json
 import logging
@@ -11,39 +11,20 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 import requests
 
-# Dynamically generate BASE_DIR
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
-print(f"BASE_DIR: {BASE_DIR}")
-# Correct config.json path
-CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
 
 # Debugging output
-print(f"BASE_DIR: {BASE_DIR}")
-print(f"CONFIG_PATH: {CONFIG_PATH}")
+if not os.path.exists(CHROMEDRIVER_PATH):
+    raise FileNotFoundError(f"Chromedriver not found at {CHROMEDRIVER_PATH}")
+print(f"Chromedriver path: {CHROMEDRIVER_PATH}")
 
-# Load configuration
-if not os.path.exists(CONFIG_PATH):
-    raise FileNotFoundError(f"Config file not found at {CONFIG_PATH}")
-
-with open(CONFIG_PATH, "r") as config_file:
-    CONFIG = json.load(config_file)
-
-# Retrieve base_dir from CONFIG
-try:
-    BASE_DIR = CONFIG["base_dir"]
-    print(f"BASE_DIR from config: {BASE_DIR}")
-except KeyError:
-    raise KeyError(f"'base_dir' key is missing in {CONFIG_PATH}. Config content: {json.dumps(CONFIG, indent=4)}")
-
-# Constants from Config
-BASE_DIR = CONFIG["base_dir"]
-LOG_FILE = os.path.join(BASE_DIR, "wx_presentation", "satellite_download.log")
-CHROMEDRIVER_PATH = CONFIG["chromedriver_path"]
-DEST_DIR = os.path.join(BASE_DIR, "wx_presentation", "images")
-MAX_RETRIES = CONFIG["max_retries"]
-RETRY_DELAY = CONFIG["retry_delay"]
-
-# Logging Configuration
+# Logging Configurationfrom src.config import CHROMEDRIVER_PATH, MAX_RETRIES, DELAY_SECONDS, URL_LIST, LOGS_DIR, IMAGES_DIR
+#
+# print("Chromedriver Path:", CHROMEDRIVER_PATH)
+# print("Max Retries:", MAX_RETRIES)
+# print("Delay Seconds:", DELAY_SECONDS)
+# print("URL List:", URL_LIST)
+# print("LOGS_DIR:", LOGS_DIR)
+# LOG_FILE = os.path.join(LOGS_DIR, "satellite.log")
 logging.basicConfig(
     filename=LOG_FILE,
     level=logging.INFO,
@@ -52,6 +33,7 @@ logging.basicConfig(
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 logging.getLogger().addHandler(console_handler)
+
 
 # Helper Functions
 def calculate_time_taken(start_time):
@@ -162,7 +144,7 @@ def download_satellite_images(driver, desired_times, dest_dir):
 
 def run_satellite_download():
     """Run satellite image download with retries."""
-    os.makedirs(DEST_DIR, exist_ok=True)
+    os.makedirs(IMAGES_DIR, exist_ok=True)
     desired_times = generate_desired_times()
     logging.info(f"Generated desired_times: {desired_times}")
 
@@ -171,8 +153,8 @@ def run_satellite_download():
 
     while retries < MAX_RETRIES:
         try:
-            driver = setup_webdriver(DEST_DIR)
-            download_satellite_images(driver, desired_times, DEST_DIR)
+            driver = setup_webdriver(IMAGES_DIR)
+            download_satellite_images(driver, desired_times, IMAGES_DIR)
             driver.quit()
             logging.info(f"Download process completed. {calculate_time_taken(start_time)}")
             return

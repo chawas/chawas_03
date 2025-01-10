@@ -1,17 +1,17 @@
-
 import os
 import json
 
-# Define CONFIG_PATH and load the JSON configuration
+#from src.config3 import IMAGES_DIR
 
+#from src.services.download_satellite_imgs6 import SRC_DIR
+
+# Load the configuration JSON
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-#print(BASE_DIR)
-#CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
-#print(f"CONFIG_PATH from config: {CONFIG_PATH}")
-CONFIG_FILE = os.path.join(BASE_DIR, "src", "config.json")
-#print(f"CONFIG_FILE from config: {CONFIG_FILE}")
+print(BASE_DIR)
+#IMAGES_DIR = os.path.join(BASE_DIR, "", "config.json")
+CONFIG_PATH = os.path.join(BASE_DIR, "src", "config.json")
 SRC_DIR = os.path.join(BASE_DIR, "src")
-with open(CONFIG_FILE, "r") as config_file:
+with open(CONFIG_PATH, "r") as config_file:
     CONFIG = json.load(config_file)
 
 # Extract paths and settings from CONFIG
@@ -20,8 +20,8 @@ LOGS_DIR = os.path.join(BASE_DIR, CONFIG["paths"]["logs"])
 CHROMEDRIVER_PATH = CONFIG["chromedriver"]["path"]
 IMAGES_DIR = os.path.join(BASE_DIR, CONFIG["paths"]["images_dir"])
 
-#BASE_DIR = CONFIG.get("base_dir", os.getcwd())  # Default to the current working directory
-#WX_PRESENTATION_IMAGES = os.path.join(BASE_DIR, CONFIG["paths"]["wx_presentation_images"])
+BASE_DIR = CONFIG.get("base_dir", os.getcwd())  # Default to the current working directory
+WX_PRESENTATION_IMAGES = os.path.join(BASE_DIR, CONFIG["paths"]["wx_presentation_images"])
 URL_LIST = CONFIG["url_list"]
 # Retry configuration
 MAX_RETRIES = CONFIG["retry_config"]["max_retries"]
@@ -33,9 +33,8 @@ if __name__ == "__main__":
     print("SRC_DIR:", SRC_DIR)
     print("IMAGES_DIR:", IMAGES_DIR)
     print("LOGS_DIR:", LOGS_DIR)
-    print("CONFIG_FILE:", CONFIG_FILE)
+    print("CONFIG_PATH:", CONFIG_PATH)
     print("VENV_ACTIVATE:", VENV_ACTIVATE)
     print("CHROMEDRIVER_PATH:", CHROMEDRIVER_PATH)
     print("MAX_RETRIES:", MAX_RETRIES)
     print("DELAY_SECONDS:", DELAY_SECONDS)
-    print("URL LIST:\n" + "\n".join(URL_LIST))

@@ -7,7 +7,7 @@ BASE_DIR = os.path.dirname(SCRIPT_DIR)  # One directory up
 print("base dir : BASE_DIR")
 # Load configuration from config.json
 def load_config():
-    config_path = os.path.join(BASE_DIR, "config3.json")
+    config_path = os.path.join(BASE_DIR, "config.json")
     with open(config_path, "r") as config_file:
         return json.load(config_file)
 

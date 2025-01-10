@@ -1,4 +1,4 @@
-import os
+import os, sys
 import time
 import json
 import logging
@@ -11,16 +11,18 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 import requests
 
+from config import CHROMEDRIVER_PATH, MAX_RETRIES, DELAY_SECONDS, BASE_DIR, SRC_DIR
+# Use CHROMEDRIVER_PATH and other configurations
+print(f"Using Chromedriver at: {CHROMEDRIVER_PATH}")
+print(f"Retries allowed: {MAX_RETRIES}, Delay between retries: {DELAY_SECONDS}s")
 
-# Dynamically generate BASE_DIR
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
+# Where are configuration files
+CONFIG_PATH = os.path.join(SRC_DIR, "config.json")
+print(f"CONFIG_PATH from config: {CONFIG_PATH}")
 
-# Add `/src` to the base directory to locate `config3.json`
-CONFIG_PATH = os.path.join(BASE_DIR, "src", "config3.json")
-
-# Debugging output
-#print(f"BASE_DIR: {BASE_DIR}")
-#print(f"CONFIG_PATH: {CONFIG_PATH}")
+# Check variables
+print(f"BASE_DIR: {BASE_DIR}")
+print(f"CONFIG_PATH: {CONFIG_PATH}")
 
 # Load configuration
 if not os.path.exists(CONFIG_PATH):
@@ -31,8 +33,8 @@ with open(CONFIG_PATH, "r") as config_file:
 
 # Retrieve base_dir or other configuration values
 try:
-    BASE_DIR = CONFIG.get("base_dir", BASE_DIR)  # Use existing BASE_DIR as a fallback
-    SRC_DIR = os.path.join(BASE_DIR, "src")
+#    BASE_DIR = CONFIG.get("base_dir", BASE_DIR)  # Use existing BASE_DIR as a fallback
+#   SRC_DIR = os.path.join(BASE_DIR, "src")
     print(f"BASE_DIR from config: {BASE_DIR}")
     print(f"SRC_DIR: {SRC_DIR}")
 except KeyError as e:
@@ -42,12 +44,17 @@ except KeyError as e:
 # Constants from Config
 print(json.dumps(CONFIG, indent=4))
 
-#BASE_DIR = CONFIG["base_dir"]
+
+
+# Debugging output
+if not os.path.exists(CHROMEDRIVER_PATH):
+    raise FileNotFoundError(f"Chromedriver not found at {CHROMEDRIVER_PATH}")
+print(f"Chromedriver path: {CHROMEDRIVER_PATH}")
 LOG_FILE = os.path.join(BASE_DIR, "wx_presentation", "satellite_download.log")
-CHROMEDRIVER_PATH = CONFIG["chromedriver_path"]
+#CHROMEDRIVER_PATH = CONFIG["chromedriver_path"]
 DEST_DIR = os.path.join(BASE_DIR, "wx_presentation", "images")
-MAX_RETRIES = CONFIG["max_retries"]
-RETRY_DELAY = CONFIG["retry_delay"]
+#MAX_RETRIES = CONFIG["max_retries"]
+RETRY_DELAY = CONFIG["retry_config"]["delay_seconds"]
 
 # Logging Configuration
 logging.basicConfig(

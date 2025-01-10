@@ -1,4 +1,4 @@
-import os
+import os, sys
 import requests
 import shutil
 from time import sleep
@@ -11,16 +11,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
 import logging
+from src.config import CHROMEDRIVER_PATH, MAX_RETRIES, DELAY_SECONDS, BASE_DIR, LOGS_DIR, CONFIG_FILE, IMAGES_DIR
 
 
-# Station Metadata
-# stations = {
-#     "Harare": {"latitude": -17.833, "longitude": 31.034},
-#     "Bulawayo": {"latitude": -20.164, "longitude": 28.626},
-#     "Gweru": {"latitude": -19.462, "longitude": 29.818},
-#     "Masvingo": {"latitude": -20.085, "longitude": 30.827},
-#     "Bindura": {"latitude": -17.330, "longitude": 31.305},
-# }
 stations = {
     "Beitbridge": {
         "code": "67991",
@@ -113,8 +106,26 @@ stations = {
 
 
 
-# Logging Configuration
-LOG_FILE = "/home/wrf/deployed/chawas_03/wx_presentation/satellite_download.log"
+
+# # Dynamically add BASE_DIR/src to the Python module path
+# SRC_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# print(f"SRC_DIR: {SRC_DIR}")
+# sys.path.append(SRC_DIR)
+#
+# #from src.config import CHROMEDRIVER_PATH, MAX_RETRIES, DELAY_SECONDS, BASE_DIR, LOGS_DIR, CONFIG_FILE
+# # Use CHROMEDRIVER_PATH and other configurations
+# print(f"Using Chromedriver at: {CHROMEDRIVER_PATH}")
+# print(f"Retries allowed: {MAX_RETRIES}, Delay between retries: {DELAY_SECONDS}s")
+#
+# # Where are configuration files
+# CONFIG_PATH = os.path.join(SRC_DIR, "config.json")
+# print(f"CONFIG_PATH from config: {CONFIG_PATH}")
+
+# Create the directory if it doesn't exist
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
+
+LOG_FILE = os.path.join(LOGS_DIR, "satellite_images.log")
 logging.basicConfig(
     filename=LOG_FILE,
     level=logging.INFO,
@@ -128,29 +139,6 @@ logging.getLogger().addHandler(console_handler)
 
 
 
-# Constants
-CHROMEDRIVER_PATH = "/usr/local/bin/chromedriver"
-MAX_RETRIES = 3
-RETRY_DELAY = 60  # seconds
-
-# def setup_webdriver(dest_dir):
-#     """Sets up the Selenium WebDriver with the correct Chromedriver."""
-#     if not os.path.exists(CHROMEDRIVER_PATH):
-#         logging.error(f"Chromedriver not found at {CHROMEDRIVER_PATH}")
-#         raise FileNotFoundError(f"Chromedriver not found at {CHROMEDRIVER_PATH}")
-#
-#     options = webdriver.ChromeOptions()
-#     prefs = {"download.default_directory": dest_dir}
-#     options.add_experimental_option("prefs", prefs)
-#     options.add_argument("--headless")  # Run in headless mode
-#     options.add_argument("--no-sandbox")
-#     options.add_argument("--disable-dev-shm-usage")
-#
-#     service = Service(CHROMEDRIVER_PATH)
-#     logging.info(f"Initializing WebDriver with Chromedriver located at: {CHROMEDRIVER_PATH}")
-#     driver = webdriver.Chrome(service=service, options=options)
-#     logging.info(f"WebDriver initialized successfully. Download directory: {dest_dir}")
-#     return driver
 
 
 def setup_webdriver(dest_dir):
@@ -188,7 +176,7 @@ def download_eps_images():
     print(f"Base time: {base_time_str}")
 
     # Initialize WebDriver
-    img_dir = "/path/to/download/directory"  # Update this with your path
+    #img_dir = "/path/to/download/directory"  # Update this with your path
     driver = None  # Initialize as None to handle cases where setup_webdriver fails
 
     urllist = []
@@ -239,50 +227,6 @@ def download_eps_images():
     save_image_urls(urllist, "../config2.py")
     return urllist
 
-
-
-# def download_eps_images():
-#     """
-#     Download EPS images for the configured stations.
-#     """
-#     base_time = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
-#     base_time_str = base_time.strftime("%Y%m%d%H%M")
-#     print(f"Base time: {base_time_str}")
-#
-#     #driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-#     urllist = []
-#
-#     try:
-#         for station, coords in stations.items():
-#             latitude = coords["latitude"]
-#             longitude = coords["longitude"]
-#             url = (
-#                 f"https://charts.ecmwf.int/products/opencharts_meteogram?"
-#                 f"base_time={base_time_str}&epsgram=classical_10d&"
-#                 f"lat={latitude}&lon={longitude}&station_name={station}"
-#             )
-#
-#             driver.get(url)
-#             sleep(5)
-#
-#             try:
-#                 image = WebDriverWait(driver, 50).until(
-#                     EC.visibility_of_element_located(
-#                         (By.XPATH, "//*[@id='root']/div[2]/div/div/div[3]/div/div[2]/div[1]/div/div/div/div[2]/img")
-#                     )
-#                 )
-#                 image_url = image.get_attribute("src")
-#                 print(f"Retrieved URL for {station}: {image_url}")
-#                 urllist.append((station, image_url))
-#             except TimeoutException:
-#                 print(f"Timeout: Could not retrieve image for {station}.")
-#
-#     finally:
-#         driver.quit()
-#
-#     # Save URLs to a config file
-#     save_image_urls(urllist, "config2.py")
-#     return urllist
 
 
 def save_image_urls(urllist, config_file_path):

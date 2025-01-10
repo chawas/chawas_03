@@ -5,27 +5,14 @@ import shutil
 from datetime import datetime
 from PIL import Image
 from src.config import CHROMEDRIVER_PATH, MAX_RETRIES, DELAY_SECONDS, URL_LIST, LOGS_DIR, IMAGES_DIR
-import logging
-
 
 print("Chromedriver Path:", CHROMEDRIVER_PATH)
 print("Max Retries:", MAX_RETRIES)
 print("Delay Seconds:", DELAY_SECONDS)
 print("URL List:", URL_LIST)
 print("LOGS_DIR:", LOGS_DIR)
-# Add datetime to log file name
-timestamp = datetime.now().strftime("%Y%m%d_%H%M")  # Format: YYYYMMDD_HHMM
-LOG_FILE = os.path.join(LOGS_DIR, f"satellite_{timestamp}.log")
+LOG_FILE = os.path.join(LOGS_DIR, "satellite.log")
 
-
-logging.basicConfig(
-    filename=LOG_FILE,
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
-print(f"Log file path: {LOG_FILE}")
-#LOG_FILE = os.path.join(LOGS_DIR, "satellite.log")
-REST_IMG_SRC_DIR = os.path.join(IMAGES_DIR, datetime.now().strftime("%Y%m%d"))
 def download_images_rest(url_list, save_dir):
     """
     Download images from the provided URL list and save them to the specified directory.
@@ -96,12 +83,12 @@ def copy_directory_contents(source_dir, target_dir):
 
 if __name__ == "__main__":
     print("1. Starting image download...")
-    download_images_rest(URL_LIST, REST_IMG_SRC_DIR)
+    download_images_rest(URL_LIST, SOURCE_IMAGES_DIR)
 
     print("2. Verifying downloaded images...")
-    verify_images_in_folder(REST_IMG_SRC_DIR)
+    verify_images_in_folder(SOURCE_IMAGES_DIR)
 
     print("3. Copying images to the target directory...")
-    copy_directory_contents(REST_IMG_SRC_DIR, IMAGES_DIR)
+    copy_directory_contents(SOURCE_IMAGES_DIR, TARGET_DIR)
 
     print("Process completed.")
